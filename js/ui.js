@@ -41,6 +41,8 @@
   const PrioTag = ({ p }) => html`<span class=${'tag ' + (p || 'C')}>${p || 'C'}</span>`;
   const statusCls = { 'Active Customer': 'ok', 'Follow-up Needed': 'warn', 'Meeting Scheduled': 'blue', Inactive: '', Prospect: '' };
   const StatusTag = ({ s }) => s ? html`<span class=${'tag ' + (statusCls[s] || '')}>${s}</span>` : html`<span class="tag bad">No status</span>`;
+  // Home-based dealers can't take a drop-in visit; business status comes from the online check.
+  const ResTag = ({ c }) => html`${c.residential && html`<span class="tag warn" title="Residential address: book an appointment, no drop-ins">🏠 Appointment only</span>`}${c.bizStatus && c.bizStatus !== 'Active' && html`<span class="tag bad" title=${c.bizStatusNote || ''}>${c.bizStatus}</span>`}`;
   const GeoTag = ({ c }) => !FS.hasGeo(c) ? html`<span class="tag warn" title="No map location">No pin</span>` : (c.geo === 'city' || c.geo === 'postal') ? html`<span class="tag" title="Approximate location">≈ ${c.geo}</span>` : null;
 
   // ---------- Leaflet map ----------
@@ -131,6 +133,7 @@
         <label class="f">Dealer registration #<input ...${bind('dealerId')} /></label>
         <label class="f">Next follow-up<input type="date" ...${bind('nextFollowUp')} /></label>
         <label class="f">Last in-person visit<input type="date" ...${bind('lastVisit')} /></label>
+        <label class="f full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" checked=${!!v.residential} onChange=${(e) => setV((o) => ({ ...o, residential: e.target.checked }))} /> 🏠 Residential address: appointment only, no drop-in visits</label>
         <label class="f full">Notes<textarea ...${bind('notes')}></textarea></label>
         <div class="full row"><span class="small muted">Map location: ${FS.hasGeo(v) ? `${v.lat.toFixed(4)}, ${v.lng.toFixed(4)} (${v.geo || 'set'})` : 'not set'}</span><span class="spacer"></span><button class="sm" disabled=${busy} onClick=${locate}>${busy ? 'Locating…' : '📍 Locate from address'}</button></div>
       </div><//>`;
@@ -144,6 +147,16 @@
     const [setStatus, setSetStatus] = useState('');
     const [q, setQ] = useState('');
     const quick = (d) => setV((o) => ({ ...o, nextFollowUp: FS.addDays(FS.today(), d) }));
+    const [heard, setHeard] = useState('');
+    // Spoken text goes into "What happened?"; a follow-up date or next step mentioned is filled in if still blank.
+    const onSpeech = (t) => setV((o) => {
+      const n = { ...o, outcome: (o.outcome ? o.outcome.replace(/\s+$/, '') + ' ' : '') + t.replace(/^\w/, (x) => x.toUpperCase()) + (/[.!?]$/.test(t) ? '' : '.') };
+      const fu = !o.nextFollowUp && G.Voice.parseFollowUp(t, o.date || FS.today());
+      if (fu) { n.nextFollowUp = fu; setHeard('Follow-up set to ' + FS.fmtDate(fu) + ' from what you said.'); }
+      const na = !o.nextAction && G.Voice.parseNextAction(t);
+      if (na) n.nextAction = na;
+      return n;
+    });
     const save = () => {
       if (!cid) return alert('Pick an account.');
       Store.logVisit({ ...v, customerId: cid, customerName: c ? c.name : '', setStatus: setStatus || undefined });
@@ -158,9 +171,10 @@
             ${matches.map((m) => html`<div class="list-item click" style="cursor:pointer" onClick=${() => setCid(m.id)}><strong>${m.name}</strong><span class="muted">${m.city}</span></div>`)}`}</div>
         <label class="f">Date<input type="date" ...${bind('date')} /></label>
         <label class="f">Type<select ...${bind('type')}>${FS.VISIT_TYPES.map((t) => html`<option>${t}</option>`)}</select></label>
-        <label class="f full">What happened?<textarea ...${bind('outcome')} placeholder="Met with… discussed… products shown…"></textarea></label>
+        <div class="full"><div class="row" style="justify-content:space-between;margin-bottom:4px"><span class="small muted">What happened?</span><${G.Voice.MicButton} onText=${onSpeech} big=${true} /></div>
+          <textarea style="width:100%" ...${bind('outcome')} placeholder="Met with… discussed… products shown… Tap Speak and say it, e.g. “Met Marc, showing the new 4K line, wants a quote. Next step is send pricing. Follow up in two weeks.”"></textarea></div>
         <label class="f full">Next action<input ...${bind('nextAction')} placeholder="Send quote for 16-cam NVR, book demo…" /></label>
-        <label class="f">Next follow-up<input type="date" ...${bind('nextFollowUp')} /></label>
+        <label class="f">Next follow-up<input type="date" ...${bind('nextFollowUp')} />${heard && html`<span class="small" style="color:var(--ok)">${heard}</span>`}</label>
         <div class="row" style="align-self:end"><button class="sm" onClick=${() => quick(7)}>+1 wk</button><button class="sm" onClick=${() => quick(14)}>+2 wk</button><button class="sm" onClick=${() => quick(30)}>+1 mo</button><button class="sm" onClick=${() => quick(90)}>+3 mo</button></div>
         <label class="f full">Update relationship status (optional)<select value=${setStatus} onChange=${(e) => setSetStatus(e.target.value)}><option value="">— Keep ${c && c.status ? c.status : 'as is'} —</option>${FS.STATUSES.map((s) => html`<option>${s}</option>`)}</select></label>
       </div><//>`;
@@ -216,9 +230,10 @@
       <aside class="drawer">
         <div class="dhead">
           <div class="row"><h2 style="margin:0;flex:1">${c.name}</h2><button class="ghost" onClick=${() => UI.closeCustomer()}>✕</button></div>
-          <div class="row small" style="margin-top:6px"><${PrioTag} p=${c.priority} /><${StatusTag} s=${c.status} />${c.partnerLevel && html`<span class="tag">${c.partnerLevel}</span>`}<${GeoTag} c=${c} /><span class="muted">${region ? region.name : 'No region'}</span></div>
+          <div class="row small" style="margin-top:6px"><${PrioTag} p=${c.priority} /><${StatusTag} s=${c.status} />${c.partnerLevel && html`<span class="tag">${c.partnerLevel}</span>`}<${GeoTag} c=${c} /><${ResTag} c=${c} /><span class="muted">${region ? region.name : 'No region'}</span></div>
           <div class="row" style="margin-top:12px">
             <button class="primary" onClick=${() => UI.logVisit(c.id)}>+ Log activity</button>
+            <a class="btn" href=${'#/prep/' + c.id} onClick=${() => UI.closeCustomer()}>📋 Prep</a>
             <button onClick=${() => UI.editCustomer(c.id)}>Edit</button>
             <a class="btn" href=${nav} target="_blank" rel="noopener">Directions</a>
             ${c.contactPhone && html`<a class="btn" href=${'tel:' + c.contactPhone}>Call</a>`}
@@ -264,5 +279,5 @@
       </aside></div>`;
   }
 
-  G.UIX = { useDB, useUI, UI, Modal, MapView, PrioTag, StatusTag, GeoTag, CustomerForm, VisitForm, ProjectForm, ContactForm, CustomerDrawer, PRIO_COLOR };
+  G.UIX = { useDB, useUI, UI, Modal, MapView, PrioTag, StatusTag, GeoTag, ResTag, CustomerForm, VisitForm, ProjectForm, ContactForm, CustomerDrawer, PRIO_COLOR };
 })(window);

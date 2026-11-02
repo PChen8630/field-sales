@@ -173,3 +173,15 @@ pre.report { white-space: pre-wrap; background: #fafbfd; border: 1px solid var(-
 .signin form { width: min(380px, 100%); padding: 24px; }
 .signin input { width: 100%; }
 .logo-lg { font-size: 22px; font-weight: 800; line-height: 1.15; margin-bottom: 10px; color: var(--brand); }
+
+/* Voice */
+.mic { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.micbtn { border-color: var(--brand); color: var(--brand); font-weight: 600; }
+.micbtn.big { padding: 9px 16px; font-size: 15px; }
+.micbtn.on { background: var(--bad); border-color: var(--bad); color: #fff; animation: micpulse 1.2s infinite; }
+@keyframes micpulse { 50% { box-shadow: 0 0 0 6px rgba(185, 28, 28, .18); } }
+.mic-live { max-width: 260px; font-style: italic; }
+/* Meeting prep */
+.brief { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; line-height: 1.45; }
+.list-item.near { flex-wrap: wrap; }
+@media print { .prep .row button, .prep .row .btn { display: none; } }

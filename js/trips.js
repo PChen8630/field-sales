@@ -203,7 +203,7 @@
                     <input type="time" class="sm" style="padding:2px 4px;width:96px" title="Fixed appointment time" value=${r.s.fixedTime || ''} onChange=${(e) => patchStop(d.di, i, { fixedTime: e.target.value || null })} />
                     <input type="number" class="sm" style="padding:2px 4px;width:58px" title="Meeting minutes" min="10" step="5" value=${r.s.duration || trip.meetingMin} onChange=${(e) => patchStop(d.di, i, { duration: Number(e.target.value) })} />
                     <button class="sm" title=${r.s.locked ? 'Unlock' : 'Lock: keep this stop when re-planning'} onClick=${() => patchStop(d.di, i, { locked: !r.s.locked })}>${r.s.locked ? '🔓' : '🔒'}</button>
-                    <button class="sm" title="Log visit" onClick=${() => UI.logVisit(r.c.id, { visit: undefined })}>✓</button>
+                    <a class="btn sm" title="Meeting prep" href=${"#/prep/" + r.c.id}>📋</a><button class="sm" title="Log visit" onClick=${() => UI.logVisit(r.c.id, { visit: undefined })}>✓</button>
                     <button class="sm danger" title="Remove" onClick=${() => removeStop(d.di, i)}>✕</button>
                   </div></div></div></div>`)}
           ${d.back != null && html`<div class="leg">↓ ${d.back} min back to start · finish ${FS.fromMin(d.finish)}</div>`}
