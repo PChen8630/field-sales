@@ -1,0 +1,9 @@
+# Never upload customer data to GitHub (the repository can be public).
+*.csv
+*.json
+*.xlsx
+*.xls
+fscc-backup-*
+.claude/
+Thumbs.db
+desktop.ini
