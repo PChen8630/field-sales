@@ -50,8 +50,8 @@ h3 { font-size: 14px; margin: 0 0 8px; }
 button, .btn { font: inherit; border: 1px solid var(--line); background: var(--panel); color: var(--ink); padding: 7px 12px; border-radius: 8px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
 button:hover { border-color: #b8c3d6; }
 button:disabled { opacity: .5; cursor: not-allowed; }
-button.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
-button.primary:hover { background: #1e40af; }
+button.primary, .btn.primary { background: var(--brand); border-color: var(--brand); color: var(--brand-ink); }
+button.primary:hover, .btn.primary:hover { background: #1e40af; }
 button.danger { color: var(--bad); }
 button.ghost { border-color: transparent; background: transparent; }
 button.sm { padding: 4px 8px; font-size: 12px; }
@@ -185,3 +185,4 @@ pre.report { white-space: pre-wrap; background: #fafbfd; border: 1px solid var(-
 .brief { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; line-height: 1.45; }
 .list-item.near { flex-wrap: wrap; }
 @media print { .prep .row button, .prep .row .btn { display: none; } }
+.btn.disabled { opacity: .5; pointer-events: none; }

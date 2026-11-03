@@ -130,6 +130,7 @@
         <label class="f">Contact email<input type="email" ...${bind('contactEmail')} /></label>
         <label class="f">Contact phone<input ...${bind('contactPhone')} /></label>
         <label class="f">Distributor(s)<input ...${bind('distributor')} /></label>
+        <label class="f">Email language<select value=${v.lang || ''} onChange=${(e) => setV((o) => ({ ...o, lang: e.target.value || undefined }))}><option value="">Automatic (French in QC)</option><option value="en">English</option><option value="fr">Français</option></select></label>
         <label class="f">Dealer registration #<input ...${bind('dealerId')} /></label>
         <label class="f">Next follow-up<input type="date" ...${bind('nextFollowUp')} /></label>
         <label class="f">Last in-person visit<input type="date" ...${bind('lastVisit')} /></label>
@@ -237,7 +238,7 @@
             <button onClick=${() => UI.editCustomer(c.id)}>Edit</button>
             <a class="btn" href=${nav} target="_blank" rel="noopener">Directions</a>
             ${c.contactPhone && html`<a class="btn" href=${'tel:' + c.contactPhone}>Call</a>`}
-            ${c.contactEmail && html`<a class="btn" href=${'mailto:' + c.contactEmail}>Email</a>`}
+            <button onClick=${() => UI.modal({ kind: 'email', customerId: c.id })}>✉ Email</button>
           </div>
         </div>
         <div class="dbody">

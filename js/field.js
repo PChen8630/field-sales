@@ -173,6 +173,7 @@
         <a class="btn" href=${dirLink(null, c)} target="_blank" rel="noopener">🚗 Directions</a>
         ${c.contactPhone && html`<a class="btn" href=${'tel:' + c.contactPhone}>📞 Call</a>`}
         <button onClick=${() => UI.logVisit(c.id)}>+ Log this meeting</button>
+        <button onClick=${() => UI.modal({ kind: 'email', customerId: c.id })}>✉ Email</button>
         <button class="ghost" onClick=${() => UI.openCustomer(c.id)}>Full account</button>
       </div>
       ${b.warn.map((w) => html`<div class="badbox" style="margin-bottom:8px">⚠ ${w}</div>`)}

@@ -12,7 +12,7 @@
     return { parts: path.split('/').filter(Boolean), params: Object.fromEntries(new URLSearchParams(qs || '')) };
   }
 
-  const NAV = [['', 'Today', '🏠'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️']];
+  const NAV = [['', 'Today', '🏠'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️']];
 
   function App() {
     const [route, setRoute] = useState(parseHash());
@@ -23,6 +23,7 @@
     let page;
     if (!p0) page = html`<${Today} />`;
     else if (p0 === 'accounts') page = html`<${Accounts} params=${route.params} key=${location.hash} />`;
+    else if (p0 === 'email') page = html`<${G.Email.EmailPage} params=${route.params} key=${location.hash} />`;
     else if (p0 === 'near') page = html`<${G.Field.NearMe} />`;
     else if (p0 === 'prep' && p1) page = html`<${G.Field.Prep} id=${p1} key=${p1} />`;
     else if (p0 === 'trips' && p1 === 'new') page = html`<${NewTrip} />`;
@@ -48,6 +49,7 @@
       ${m && m.kind === 'visit' && html`<${VisitForm} customerId=${m.customerId} visit=${m.visit} onClose=${UI.close} />`}
       ${m && m.kind === 'project' && html`<${ProjectForm} project=${m.project} onClose=${UI.close} />`}
       ${m && m.kind === 'contact' && html`<${ContactForm} contact=${m.contact} onClose=${UI.close} />`}
+      ${m && m.kind === 'email' && html`<${G.Email.Compose} customerId=${m.customerId} templateId=${m.templateId} onClose=${UI.close} />`}
       ${ui.toast && html`<div class="toast">${ui.toast}</div>`}`;
   }
 
