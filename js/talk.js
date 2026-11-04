@@ -24,12 +24,72 @@
     });
   }
 
+  // ---------- Sound-alike matching ----------
+  // Speech recognition in one language mangles names from the other ("Sécuritech" -> "security tech",
+  // "Carillon" -> "carry on"). We compare how words *sound* to find likely dealers and contacts.
+  const GENERIC = new Set('inc ltee ltd limited limitee enr senc corp corporation cie co the le la les de du des d l et and groupe group alarme alarmes alarm alarms securite security systemes systeme systems system solutions solution services service technologies technology technologie communications communication electronique electronic electronics entreprises entreprise enterprises enterprise quebec qc canada'.split(' '));
+  const deacc = (x) => String(x || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  function phon(word) {
+    let w = deacc(word).replace(/[^a-z0-9]/g, '');
+    if (!w || /^\d+$/.test(w)) return w;
+    w = w.replace(/eau/g, 'o').replace(/au/g, 'o').replace(/ou/g, 'u').replace(/oi/g, 'wa').replace(/ph/g, 'f').replace(/qu/g, 'k').replace(/ck/g, 'k')
+      .replace(/ch/g, 'sh').replace(/th/g, 't').replace(/gn/g, 'ny').replace(/c(?=[eiy])/g, 's').replace(/c/g, 'k').replace(/x/g, 'ks').replace(/z/g, 's')
+      .replace(/y/g, 'i').replace(/(^|[^s])h/g, '$1').replace(/ai|ei/g, 'e').replace(/ique$/, 'ik').replace(/(er|et|ez)$/, 'e').replace(/(.)\1+/g, '$1');
+    if (w.length > 3 && !/sh$/.test(w)) w = w.replace(/[estdx]$/, '');
+    return w;
+  }
+  const words = (x) => deacc(x).split(/[^a-z0-9]+/).filter(Boolean);
+  const core = (name) => { const ws = words(name).filter((w) => !GENERIC.has(w)); return (ws.length ? ws : words(name)).map(phon).join(''); };
+  function dice(a, b) {
+    if (a === b) return 1; if (a.length < 2 || b.length < 2) return 0;
+    const bg = (x) => { const m = new Map(); for (let i = 0; i < x.length - 1; i++) { const k = x.slice(i, i + 2); m.set(k, (m.get(k) || 0) + 1); } return m; };
+    const A = bg(a), B = bg(b); let n = 0;
+    A.forEach((v, k) => { n += Math.min(v, B.get(k) || 0); });
+    return 2 * n / (a.length + b.length - 2);
+  }
+  // Returns [{item, score, heard}] best first.
+  // Consonant outline ("mirorbel" -> "mrrbl" -> "mrbl"): survives vowel mix-ups between languages.
+  const skeleton = (p) => (p[0] || '') + p.slice(1).replace(/[aeiou]/g, '').replace(/(.)\1+/g, '$1');
+  function soundsLike(text, items, nameOf, limit = 6) {
+    const ws = words(text); const ph = ws.map(phon);
+    const out = [];
+    items.forEach((it) => {
+      const target = core(nameOf(it)); if (target.length < 3 || /^\d+$/.test(target)) return;
+      const short = target.length < 4; // e.g. "LBI", "Plus": only an exact match counts
+      const tSkel = skeleton(target);
+      let best = 0, heard = '';
+      for (let i = 0; i < ph.length; i++) {
+        let cat = '';
+        for (let j = i; j < Math.min(ph.length, i + 4); j++) {
+          cat += ph[j]; if (cat.length > target.length * 1.8) break;
+          if (short) { if (j === i && cat === target) { best = 1; heard = ws[i]; } continue; }
+          if (cat.length < Math.max(3, target.length * 0.6)) continue; // too short a piece to judge
+          const cSkel = skeleton(cat);
+          let sc = Math.max(dice(cat, target), tSkel.length >= 3 && cSkel.length >= 3 ? 0.92 * dice(cSkel, tSkel) : 0);
+          // Words like "security" or "alarms" alone say little about which dealer it is.
+          if (ws.slice(i, j + 1).every((w) => GENERIC.has(w))) sc *= 0.7;
+          if (sc > best) { best = sc; heard = ws.slice(i, j + 1).join(' '); }
+        }
+      }
+      if (best >= 0.62) out.push({ item: it, score: best, heard, len: target.length });
+    });
+    return out.sort((a, b) => b.score - a.score || b.len - a.len).slice(0, limit);
+  }
+
   // ---------- What we send the AI ----------
   const clean = (s) => String(s || '').replace(/[|\n\r]+/g, ' ').trim();
-  function buildContext(pos) {
+  function buildContext(pos, transcript, alternatives) {
     const db = Store.db;
     const byId = Object.fromEntries(db.customers.map((c) => [c.id, c]));
-    const dealers = db.customers.map((c) => `${c.id} | ${clean(c.name)} | ${clean(c.city)}`).join('\n');
+    const heardAll = [transcript || '', ...(alternatives || [])].join(' ');
+    const likelyD = soundsLike(heardAll, db.customers, (c) => c.name);
+    const likelyC = soundsLike(heardAll, [...db.customers.filter((c) => c.contactName).map((c) => ({ id: 'p:' + c.id, name: c.contactName, cid: c.id })),
+      ...db.contacts.filter((x) => !x.left).map((x) => ({ id: x.id, name: x.name, cid: x.customerId }))], (x) => x.name);
+    const hints = [];
+    if (alternatives && alternatives.length) hints.push('OTHER WAYS THE PHONE HEARD THE NOTE (speech recognition guesses; use them to recognise names):\n' + alternatives.map((a) => '- ' + clean(a)).join('\n'));
+    if (likelyD.length) hints.push('LIKELY DEALERS BY SOUND (the phone may have spelled French or English names wrongly; best match first):\n' + likelyD.map((m) => `${m.item.id} | ${clean(m.item.name)} | ${clean(m.item.city)} | heard as "${clean(m.heard)}"`).join('\n'));
+    if (likelyC.length) hints.push('LIKELY CONTACTS BY SOUND:\n' + likelyC.map((m) => `${m.item.id} | ${clean(m.item.name)} | dealer ${m.item.cid} (${clean((byId[m.item.cid] || {}).name)}) | heard as "${clean(m.heard)}"`).join('\n'));
+    const dealers = (hints.length ? hints.join('\n\n') + '\n\nALL DEALERS:\n' : '') + db.customers.map((c) => `${c.id} | ${clean(c.name)} | ${clean(c.city)}`).join('\n');
     const contacts = [
       ...db.customers.filter((c) => c.contactName).map((c) => `p:${c.id} | ${clean(c.contactName)} | main contact | ${c.id}`),
       ...db.contacts.filter((x) => !x.left).map((x) => `${x.id} | ${clean(x.name)} | ${clean(x.title)} | ${x.customerId}`),
@@ -45,9 +105,9 @@
     return { today: FS.today(), weekday: d.toLocaleDateString('en-CA', { weekday: 'long' }), lang: G.Voice.getLang(), dealers, contacts, nearby, projects };
   }
 
-  async function askAI(transcript) {
+  async function askAI(transcript, alternatives) {
     const pos = await getPosition();
-    const body = { transcript, ...buildContext(pos) };
+    const body = { transcript, ...buildContext(pos, transcript, alternatives) };
     return G.Sync.callFunction('voice-update', body);
   }
 
@@ -173,6 +233,7 @@
     const [err, setErr] = useState('');
     const [saved, setSaved] = useState(null);
     const [lang, setLangS] = useState(G.Voice.getLang());
+    const alts = useRef([]);
     const qid = useRef(queued ? queued.id : null), rec = useRef(null), textRef = useRef(text), stopYN = useRef(() => {}), cancelled = useRef(false);
     textRef.current = text;
 
@@ -181,10 +242,17 @@
 
     function start() {
       if (!SR) return;
-      const r = new SR(); r.lang = G.Voice.getLang(); r.continuous = true; r.interimResults = true;
+      const r = new SR(); r.lang = G.Voice.getLang(); r.continuous = true; r.interimResults = true; r.maxAlternatives = 3;
       r.onresult = (e) => {
         let fin = '', mid = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) { const s = e.results[i][0].transcript; if (e.results[i].isFinal) fin += s; else mid += s; }
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          const res = e.results[i], s = res[0].transcript;
+          if (res.isFinal) {
+            fin += s;
+            // Keep the phone's other guesses: they often spell names better.
+            for (let k = 1; k < res.length; k++) if (res[k] && res[k].transcript && res[k].transcript.trim() !== s.trim()) alts.current.push(res[k].transcript.trim());
+          } else mid += s;
+        }
         setInterim(mid);
         if (fin.trim()) setText((o) => (o ? o.trim() + ' ' : '') + fin.trim());
       };
@@ -195,12 +263,19 @@
       try { r.start(); setOn(true); setErr(''); } catch (e) { setOn(false); }
     }
     const stop = () => { if (rec.current) rec.current.stop(); else if (text.trim()) process(text.trim()); };
+    // Switching language while listening restarts the microphone in the new language and keeps what was said.
+    function switchLang(l) {
+      if (l === lang) return;
+      try { localStorage.setItem('fscc.voiceLang', l); } catch (e) { /* ignore */ }
+      setLangS(l);
+      if (rec.current) { rec.current.onend = null; try { rec.current.abort(); } catch (e) { /* */ } rec.current = null; setOn(false); setInterim(''); setTimeout(start, 250); }
+    }
 
     async function process(t, queueId) {
       setStep('thinking'); setErr('');
       if (!G.Sync.signedIn) { setErr('Voice updates need cloud sign-in. Sign in under Data & settings.'); setStep('error'); return; }
       try {
-        const res = await askAI(t);
+        const res = await askAI(t, alts.current.slice(-12));
         if (cancelled.current) return;
         const p = toPlan(res.result, t);
         setPlan(p); setStep('review');
@@ -240,7 +315,10 @@
       body = html`<div class="talk">
         ${SR ? html`<button class=${'talkbtn' + (on ? ' on' : '')} onClick=${on ? stop : start}>${on ? '■' : '🎙'}</button>
           <div class="muted center-t">${on ? 'Listening… talk naturally, then pause or tap ■' : 'Tap to talk'}</div>
-          <div class="row" style="justify-content:center"><span class="small muted">Language</span><button class="sm" disabled=${on} onClick=${() => { const l = lang === 'en-CA' ? 'fr-CA' : 'en-CA'; try { localStorage.setItem('fscc.voiceLang', l); } catch (e) { /* */ } setLangS(l); }}>${lang === 'en-CA' ? 'English' : 'Français'}</button></div>`
+          <div class="seg" role="group" aria-label="Speech language">
+            <button class=${lang === 'en-CA' ? 'on' : ''} onClick=${() => switchLang('en-CA')}>English</button>
+            <button class=${lang === 'fr-CA' ? 'on' : ''} onClick=${() => switchLang('fr-CA')}>Français</button></div>
+          <div class="small muted center-t">Tip: pick the language you'll mostly speak. Names in the other language are matched by sound.</div>`
           : html`<p class="muted">This browser can't listen directly. Tap in the box and use the 🎤 on your keyboard to dictate.</p>`}
         <textarea rows="4" placeholder="e.g. Just left Alarme Mirabel, met Jean. They're quoting 40 cameras for a school in Saint-Jérôme, about 30K, closing in March. Follow up in two weeks." value=${text + (interim ? ' ' + interim : '')} onInput=${(e) => setText(e.target.value)}></textarea>
         ${err && html`<div class="err">${err}</div>`}</div>`;
@@ -295,7 +373,7 @@
         ${!p.visit.on && !p.projects.length && !p.contacts.length && !p.status && html`<div class="muted">The AI didn't find anything to update. Edit the note below and try again, or log it by hand.</div>`}
         <details><summary class="small muted">What you said</summary><blockquote class="small">${p.transcript}</blockquote></details>
         ${err && html`<div class="err">${err}</div>`}</div>`;
-      footer = html`<button onClick=${() => { stopYN.current(); G.Voice.stopSpeaking(); setStep('listen'); setPlan(null); cancelled.current = false; }}>Redo</button><span class="spacer"></span><button onClick=${close}>Cancel</button><button class="primary" onClick=${() => save()}>Save</button>`;
+      footer = html`<button onClick=${() => { stopYN.current(); G.Voice.stopSpeaking(); setStep('listen'); setPlan(null); alts.current = []; cancelled.current = false; }}>Redo</button><span class="spacer"></span><button onClick=${close}>Cancel</button><button class="primary" onClick=${() => save()}>Save</button>`;
     }
     return html`<${G.UIX.Modal} title="🎙 Talk" wide=${step === 'review'} onClose=${close} footer=${footer}>${body}<//>`;
   }
@@ -310,5 +388,5 @@
         <button class="sm ghost" onClick=${() => { if (confirm('Delete this voice note?')) writeQ(readQ().filter((x) => x.id !== n.id)); }}>✕</button></div>`)}</div>`;
   }
 
-  G.Talk = { TalkModal, QueueBanner, toPlan, apply, buildContext, open: () => G.UIX.UI.modal({ kind: 'talk' }) };
+  G.Talk = { TalkModal, QueueBanner, toPlan, apply, buildContext, soundsLike, phon, open: () => G.UIX.UI.modal({ kind: 'talk' }) };
 })(window);
