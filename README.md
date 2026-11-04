@@ -39,6 +39,18 @@ Open that address in Safari (iPhone) or Chrome (Android), sign in, then use **Sh
 - Supabase keeps a **daily copy** for 60 days (Data & settings → Cloud sync → Daily cloud copies). It also keeps a copy before any save that would remove more than half your accounts.
 - Free Supabase projects **pause after 7 days without use**. If the app says it can't reach the cloud, open supabase.com and click **Restore project**. Your data is kept.
 
+## Talk: update by voice (AI)
+
+Tap **🎙 Talk** (top bar or Today), speak naturally, pause. The AI (Claude Haiku 5.5) picks the dealer, writes the visit summary, creates projects with follow-up reminders and records contacts who changed companies. It reads back what it understood; say **yes** (or tap Save) to save. Every save can be undone. With no signal the note waits on the phone until you tap **Process** on Today.
+
+One-time setup:
+1. **Anthropic account:** sign up at console.anthropic.com, add a payment method, set a monthly spend limit, then create an API key.
+2. **Store the key in Supabase:** dashboard → Edge Functions → Secrets → add `ANTHROPIC_API_KEY` with the key. (Never put it in `config.js` or GitHub.)
+3. **Deploy the function:** dashboard → Edge Functions → Deploy a new function → Via editor → name it `voice-update` → paste `supabase/functions/voice-update/index.ts` → Deploy. Leave "Verify JWT" on.
+4. Optional secrets: `VOICE_MODEL` (default `claude-haiku-5-5`; e.g. `claude-opus-5-5` for the most accurate), `ALLOWED_ORIGINS` (default `https://pchen8630.github.io`).
+
+Needs cloud sign-in. Voice notes and your dealer list are sent to Anthropic to be understood.
+
 ## Move your data over from Base44
 1. Use **`import-ready.csv`** in this folder. It's your Base44 export (316 accounts), cleaned: province codes, tidy city names, POS 2025/2026, distributor and dealer # as their own columns, and relationship status filled from POS sales (bought in 2026 = Active Customer, bought in 2025 only = Follow-up Needed, no sales = Prospect).
 2. Go to **Data & settings → Import CSV** and pick that file. Columns are matched automatically. "Additional contacts" in the notes become real contact records (132 of them).
@@ -67,6 +79,9 @@ Priority (A 40 / B 25 / C 10) + visit timing (never = 40, else 20 × days since 
 Targets default to A 30 / B 60 / C 90 days. Change them in Settings, or per account.
 
 ## Files
+
+- `js/talk.js` — Talk button, review screen, applying updates, offline queue.
+- `supabase/functions/voice-update/index.ts` — the AI function (runs on Supabase, holds the Anthropic key).
 - `index.html`, `styles.css`, `js/` contain the app (`core.js` holds the logic: scoring, planner, geocoding, CSV)
 - `vendor/` holds Leaflet maps and Preact (stored locally)
 - `js/sync.js` handles cloud sync. `config.js` holds your Supabase address and key, and `supabase-setup.sql` is the one-time database setup

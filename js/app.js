@@ -35,7 +35,7 @@
     else page = html`<div class="empty">Page not found. <a href="#/">Go home</a></div>`;
     const m = ui.modal;
     return html`
-      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Field Sales Command Center</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
+      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Field Sales Command Center</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
       <div class="shell">
         <nav class=${'side' + (menu ? ' open' : '')}>
           <div class="logo">Field Sales<br/>Command Center<span>Luminys · Canada East</span></div>
@@ -49,6 +49,7 @@
       ${m && m.kind === 'visit' && html`<${VisitForm} customerId=${m.customerId} visit=${m.visit} onClose=${UI.close} />`}
       ${m && m.kind === 'project' && html`<${ProjectForm} project=${m.project} onClose=${UI.close} />`}
       ${m && m.kind === 'contact' && html`<${ContactForm} contact=${m.contact} onClose=${UI.close} />`}
+      ${m && m.kind === 'talk' && html`<${G.Talk.TalkModal} queued=${m.queued} onClose=${UI.close} key=${(m.queued && m.queued.id) || 'talk'} />`}
       ${m && m.kind === 'email' && html`<${G.Email.Compose} customerId=${m.customerId} templateId=${m.templateId} onClose=${UI.close} />`}
       ${ui.toast && html`<div class="toast">${ui.toast}</div>`}`;
   }

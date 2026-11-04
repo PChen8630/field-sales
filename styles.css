@@ -186,3 +186,21 @@ pre.report { white-space: pre-wrap; background: #fafbfd; border: 1px solid var(-
 .list-item.near { flex-wrap: wrap; }
 @media print { .prep .row button, .prep .row .btn { display: none; } }
 .btn.disabled { opacity: .5; pointer-events: none; }
+
+/* Talk (voice updates) */
+.talk { display: flex; flex-direction: column; align-items: stretch; gap: 12px; }
+.talk textarea { width: 100%; }
+.talkbtn { align-self: center; width: 120px; height: 120px; border-radius: 50%; justify-content: center; font-size: 46px; background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: 0 6px 18px rgba(29, 78, 216, .35); }
+.talkbtn.on { background: var(--bad); border-color: var(--bad); font-size: 38px; animation: micpulse 1.2s infinite; }
+.talk-big { font-weight: 700; }
+.center-t { text-align: center; }
+.talk .spinner { align-self: center; width: 44px; height: 44px; border: 4px solid var(--brand-soft); border-top-color: var(--brand); border-radius: 50%; animation: spin .9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.talk blockquote, .talk-review blockquote { margin: 0; padding: 8px 10px; background: var(--soft); border-radius: 8px; color: var(--muted); }
+.card.soft { box-shadow: none; padding: 12px; }
+.card.soft .form { margin-top: 10px; }
+.warnbox { background: var(--warn-soft); border-color: #f3dfa6; }
+.warnbox ul { margin: 6px 0 0; padding-left: 20px; }
+.warn-t { color: var(--warn); margin-top: 6px; }
+.err { background: var(--bad-soft); color: var(--bad); padding: 8px 10px; border-radius: 8px; }
+.talk-review label.f select { width: 100%; }

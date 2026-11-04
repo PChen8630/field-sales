@@ -291,5 +291,12 @@
     </div>`;
   }
 
-  G.Sync = { enabled, state: S, syncNow, signIn, signOut, SyncGate, StatusLine, StatusIcon, CloudCard, get signedIn() { return !!saved.session; } };
+  // Calls a Supabase Edge Function as the signed-in user. Errors carry .offline when there is no connection.
+  async function callFunction(name, body) {
+    if (!enabled || !saved.session) throw signedOutError();
+    try { return await request('/functions/v1/' + name, { method: 'POST', body }); }
+    catch (e) { if (e instanceof Offline) e.offline = true; throw e; }
+  }
+
+  G.Sync = { enabled, state: S, syncNow, callFunction, signIn, signOut, SyncGate, StatusLine, StatusIcon, CloudCard, get signedIn() { return !!saved.session; } };
 })(window);
