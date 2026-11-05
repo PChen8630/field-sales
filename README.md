@@ -39,6 +39,10 @@ Open that address in Safari (iPhone) or Chrome (Android), sign in, then use **Sh
 - Supabase keeps a **daily copy** for 60 days (Data & settings → Cloud sync → Daily cloud copies). It also keeps a copy before any save that would remove more than half your accounts.
 - Free Supabase projects **pause after 7 days without use**. If the app says it can't reach the cloud, open supabase.com and click **Restore project**. Your data is kept.
 
+## Guide
+
+Menu → ❓ **Guide**: how to do each thing, by task, with “👆 Show me” buttons that open the right screen and highlight where to tap. Add or change topics in `js/guide.js` (TOPICS).
+
 ## Car mode and the Talk icon
 
 - **Car mode** (🚘 in the top bar or menu): a dark, full-screen view with three huge buttons — 🎙 Talk, 🧭 Navigate (Google Maps or Waze) and 📞 Call — for the next stop of today's trip. With no trip today it suggests the best drop-in near you (never home-based or closed dealers). Skip, Read prep aloud, and the screen stays awake.

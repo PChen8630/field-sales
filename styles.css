@@ -239,4 +239,25 @@ pre.report { white-space: pre-wrap; background: #fafbfd; border: 1px solid var(-
 .car-seg button.on { background: #2563eb; color: #fff; }
 .car-later { color: #94a3b8; font-size: 14px; }
 @media (min-width: 900px) { .car { max-width: 560px; margin: 0 auto; } }
-.topbar .talk-top { font-size: 18px; padding: 6px 14px; }
+.topbar .talk-top { font-size: 18px; padding: 6px 14px; background: var(--brand) !important; border-color: var(--brand) !important; color: #fff !important; }
+
+/* Guide */
+.guide { max-width: 860px; }
+.guide-search { width: 100%; font-size: 16px; padding: 10px 12px; margin-bottom: 14px; }
+.guide-quick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 8px; }
+.guide-quick > * { flex-direction: column; justify-content: center; padding: 14px 8px; font-weight: 600; white-space: normal; text-align: center; min-height: 86px; }
+.guide-quick span { font-size: 26px; }
+.guide-group { margin: 22px 0 8px; font-size: 15px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.guide-topic { padding: 0; }
+.guide-topic summary { cursor: pointer; padding: 14px 16px; list-style: none; }
+.guide-topic summary::-webkit-details-marker { display: none; }
+.guide-topic summary::before { content: '›'; display: inline-block; width: 16px; color: var(--brand); font-weight: 800; transition: transform .15s; }
+.guide-topic[open] summary::before { transform: rotate(90deg); }
+.guide-topic ol { margin: 0; padding: 0 18px 16px 40px; line-height: 1.6; }
+.guide-topic li { margin: 6px 0; }
+.guide-topic li .btn, .guide-topic li button { margin-left: 6px; vertical-align: middle; }
+.guide-banner { background: var(--brand-soft); border-color: #c7d5ff; }
+.guide-spot { position: fixed; z-index: 10000; border-radius: 10px; border: 3px solid #f59e0b; box-shadow: 0 0 0 9999px rgba(15, 23, 42, .55); pointer-events: none; transition: all .2s; }
+.guide-tip { position: fixed; z-index: 10001; background: #fff; color: var(--ink); border-radius: 12px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
+.guide-tip button { align-self: flex-end; }
+@media (max-width: 700px) { .guide-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

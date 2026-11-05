@@ -12,7 +12,7 @@
     return { parts: path.split('/').filter(Boolean), params: Object.fromEntries(new URLSearchParams(qs || '')) };
   }
 
-  const NAV = [['', 'Today', '🏠'], ['car', 'Car mode', '🚘'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️']];
+  const NAV = [['', 'Today', '🏠'], ['car', 'Car mode', '🚘'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️'], ['guide', 'Guide', '❓']];
 
   function App() {
     const [route, setRoute] = useState(parseHash());
@@ -31,6 +31,7 @@
     else if (p0 === 'trips') page = html`<${TripList} />`;
     else if (p0 === 'pipeline') page = html`<${Pipeline} />`;
     else if (p0 === 'activity') page = html`<${Activity} />`;
+    else if (p0 === 'guide') page = html`<${G.Guide.Guide} />`;
     else if (p0 === 'data') page = html`<${G.DataPage} params=${route.params} key=${location.hash} />`;
     else page = html`<div class="empty">Page not found. <a href="#/">Go home</a></div>`;
     const m = ui.modal;

@@ -8,6 +8,16 @@
   const STAGE_PROB = { Lead: 0.1, Quoted: 0.4, 'In Progress': 0.7, Won: 1, Lost: 0 };
 
   // ---------------- Today ----------------
+  // One-time pointer to the Guide (hidden once dismissed).
+  function GuideBanner() {
+    const [hide, setHide] = useState(() => { try { return localStorage.getItem('fscc.guideSeen') === '1'; } catch (e) { return false; } });
+    if (hide) return null;
+    const close = () => { try { localStorage.setItem('fscc.guideSeen', '1'); } catch (e) { /* ignore */ } setHide(true); };
+    return html`<div class="card guide-banner" style="margin-bottom:14px"><div class="row"><span style="font-size:26px">❓</span>
+      <div class="grow"><strong>New to the app?</strong> The Guide shows how to do each thing and points to where to tap.</div>
+      <a class="btn primary" href="#/guide" onClick=${close}>Open the Guide</a><button class="ghost" onClick=${close} aria-label="Dismiss">✕</button></div></div>`;
+  }
+
   function Today() {
     const db = useDB(), s = db.settings, t = FS.today();
     const ranked = useMemo(() => FS.rankCustomers(db.customers, s), [db.customers, db.settings]);
@@ -46,6 +56,7 @@
       <div class="head"><div class="grow"><h1>Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}${s.ownerName ? ', ' + s.ownerName : ''}</h1><div class="muted">${FS.fmtDay(t)} · ${active.length} active accounts</div></div>
         <button class="primary talk-big" onClick=${() => G.Talk.open()}>🎙 Talk</button><button onClick=${() => UI.logVisit(null)}>+ Log activity</button><button class="primary" onClick=${() => go('#/trips/new')}>Plan a trip</button></div>
       <${G.Talk.QueueBanner} />
+      <${GuideBanner} />
       ${(noPin || noStatus || future || backupAge === null || backupAge > 7) && html`<div class="card" style="margin-bottom:14px"><h3>Needs attention</h3><div class="stack">
         ${noPin > 0 && html`<div class="row"><span class="tag warn">${noPin}</span> accounts have no map pin, so they won't show on the map or be routed well.<span class="spacer"></span><button class="sm primary" onClick=${() => go('#/data?locate=1')}>Locate all</button></div>`}
         ${noStatus > 0 && html`<div class="row"><span class="tag bad">${noStatus}</span> accounts have no relationship status.<span class="spacer"></span><button class="sm" onClick=${() => go('#/accounts?status=__none')}>Review & bulk set</button></div>`}
