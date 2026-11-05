@@ -39,6 +39,12 @@ Open that address in Safari (iPhone) or Chrome (Android), sign in, then use **Sh
 - Supabase keeps a **daily copy** for 60 days (Data & settings → Cloud sync → Daily cloud copies). It also keeps a copy before any save that would remove more than half your accounts.
 - Free Supabase projects **pause after 7 days without use**. If the app says it can't reach the cloud, open supabase.com and click **Restore project**. Your data is kept.
 
+## Car mode and the Talk icon
+
+- **Car mode** (🚘 in the top bar or menu): a dark, full-screen view with three huge buttons — 🎙 Talk, 🧭 Navigate (Google Maps or Waze) and 📞 Call — for the next stop of today's trip. With no trip today it suggests the best drop-in near you (never home-based or closed dealers). Skip, Read prep aloud, and the screen stays awake.
+- **Install on the phone:** open the app in Chrome (Android) or Safari (iPhone) and use *Add to Home screen*. It then opens full-screen like an app, and still opens with no signal.
+- **Talk icon:** open `talk.html` on the phone and add it to the home screen too. Tapping it opens Car mode already listening. On Android, long-pressing the main app icon also shows *Talk* and *Car mode* shortcuts.
+
 ## Talk: update by voice (AI)
 
 Tap **🎙 Talk** (top bar or Today), speak naturally, pause. The AI (Claude Haiku 5.5) picks the dealer, writes the visit summary, creates projects with follow-up reminders and records contacts who changed companies. It reads back what it understood; say **yes** (or tap Save) to save. Every save can be undone. With no signal the note waits on the phone until you tap **Process** on Today.
@@ -79,6 +85,8 @@ Priority (A 40 / B 25 / C 10) + visit timing (never = 40, else 20 × days since 
 Targets default to A 30 / B 60 / C 90 days. Change them in Settings, or per account.
 
 ## Files
+
+- `js/car.js` — Car mode. `talk.html`, `talk.webmanifest`, `manifest.webmanifest`, `icons/` — home-screen install. `sw.js` — lets the app open offline (network first, saved copy as fallback).
 
 - `js/talk.js` — Talk button, review screen, applying updates, offline queue.
 - `supabase/functions/voice-update/index.ts` — the AI function (runs on Supabase, holds the Anthropic key).

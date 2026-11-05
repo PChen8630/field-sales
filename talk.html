@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0b1220">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Talk">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <link rel="manifest" href="talk.webmanifest">
+  <link rel="apple-touch-icon" href="icons/talk-apple-touch-icon.png">
+  <link rel="icon" href="icons/talk-192.png">
+  <title>Talk</title>
+  <script>
+    // Opened from the home-screen icon: go straight to listening.
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    if (standalone) location.replace('index.html?from=talk#/car?talk=1');
+  </script>
+  <style>
+    body { margin: 0; font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: #0b1220; color: #f1f5f9; }
+    main { max-width: 520px; margin: 0 auto; padding: 24px 16px 40px; }
+    img { width: 96px; height: 96px; border-radius: 22px; display: block; margin: 8px auto 16px; }
+    h1 { text-align: center; margin: 0 0 6px; font-size: 26px; }
+    p.lead { text-align: center; color: #cbd5e1; margin: 0 0 22px; }
+    .card { background: #111c33; border: 1px solid #1e2d4d; border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 17px; margin: 0 0 8px; }
+    ol { margin: 0; padding-left: 22px; }
+    li { margin: 4px 0; }
+    .btn { display: block; text-align: center; background: #2563eb; color: #fff; text-decoration: none; font-weight: 700; padding: 14px; border-radius: 12px; margin-top: 18px; }
+    .muted { color: #94a3b8; font-size: 14px; }
+    #install { display: none; width: 100%; border: 0; cursor: pointer; font: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <img src="icons/talk-192.png" alt="">
+    <h1>Talk icon</h1>
+    <p class="lead">Add this to your phone's home screen. One tap opens Car mode and starts listening.</p>
+
+    <button id="install" class="btn">📲 Add Talk to home screen</button>
+
+    <div class="card">
+      <h2>Android (Chrome)</h2>
+      <ol>
+        <li>Tap the <strong>⋮</strong> menu (top right).</li>
+        <li>Tap <strong>Add to Home screen</strong> (or <strong>Install app</strong>).</li>
+        <li>Keep the name <strong>Talk</strong> and tap <strong>Add</strong>.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>iPhone (Safari)</h2>
+      <ol>
+        <li>Tap the <strong>Share</strong> button (square with an arrow).</li>
+        <li>Scroll down and tap <strong>Add to Home Screen</strong>.</li>
+        <li>Keep the name <strong>Talk</strong> and tap <strong>Add</strong>.</li>
+      </ol>
+    </div>
+    <p class="muted">The first time, allow the microphone and location when asked. You stay signed in, as in the main app.</p>
+    <a class="btn" href="index.html#/car?talk=1">Try it now →</a>
+  </main>
+  <script>
+    // Android Chrome can show its own install prompt.
+    var prompt = null, b = document.getElementById('install');
+    addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); prompt = e; b.style.display = 'block'; });
+    b.addEventListener('click', function () { if (prompt) { prompt.prompt(); prompt = null; b.style.display = 'none'; } });
+  </script>
+</body>
+</html>

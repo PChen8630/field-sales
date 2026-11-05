@@ -223,7 +223,7 @@
   }
 
   // ---------- The Talk screen ----------
-  function TalkModal({ onClose, queued }) {
+  function TalkModal({ onClose, queued, car }) {
     const db = G.UIX.useDB();
     const [step, setStep] = useState(queued ? 'thinking' : 'listen'); // listen | thinking | review | saved | queued | error
     const [text, setText] = useState(queued ? queued.text : '');
@@ -299,6 +299,7 @@
       const r = apply(cur);
       if (qid.current) { writeQ(readQ().filter((q) => q.id !== qid.current)); qid.current = null; }
       setSaved(r); setStep('saved');
+      if (car) setTimeout(() => { if (!cancelled.current) onClose(); }, 6000); // back to the big buttons
       speakThen(G.Voice.getLang().startsWith('fr') ? 'Enregistré.' : 'Saved.');
     }
     const undo = () => { if (saved) { Store.replaceAll(saved.snapshot); G.UIX.UI.toast('Voice update undone'); } onClose(); };
