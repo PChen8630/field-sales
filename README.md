@@ -43,6 +43,13 @@ Open that address in Safari (iPhone) or Chrome (Android), sign in, then use **Sh
 
 Menu → ❓ **Guide**: how to do each thing, by task, with “👆 Show me” buttons that open the right screen and highlight where to tap. Add or change topics in `js/guide.js` (TOPICS).
 
+## To do
+Menu → **✅ To do** (or ✅ in the phone's top bar). Each to-do can be linked to a dealer.
+- **Add:** say it in 🎙 Talk ("…and I need to send them pricing by Friday"), type it on the To do page or a dealer's **To do** tab, or fill in "Next action" when logging a visit.
+- **Morning:** Today shows what is overdue and due today. Prep and Car mode list a dealer's open to-dos.
+- **Evening:** after 5 pm, Today offers **🌙 Evening review**: tick what's done, move the rest to tomorrow or Monday.
+- To-dos by voice need the updated `voice-update` function (paste the new `index.ts` in Supabase and Deploy). Until then Talk turns the "next step" into one to-do.
+
 ## Car mode and the Talk icon
 
 - **Car mode** (🚘 in the top bar or menu): a dark, full-screen view with three huge buttons — 🎙 Talk, 🧭 Navigate (Google Maps or Waze) and 📞 Call — for the next stop of today's trip. With no trip today it suggests the best drop-in near you (never home-based or closed dealers). Skip, Read prep aloud, and the screen stays awake.
@@ -93,6 +100,7 @@ Targets default to A 30 / B 60 / C 90 days. Change them in Settings, or per acco
 - `js/car.js` — Car mode. `talk.html`, `talk.webmanifest`, `manifest.webmanifest`, `icons/` — home-screen install. `sw.js` — lets the app open offline (network first, saved copy as fallback).
 
 - `js/talk.js` — Talk button, review screen, applying updates, offline queue.
+- `js/todo.js` — To do page, Today card, evening review, dealer tab.
 - `supabase/functions/voice-update/index.ts` — the AI function (runs on Supabase, holds the Anthropic key).
 - `index.html`, `styles.css`, `js/` contain the app (`core.js` holds the logic: scoring, planner, geocoding, CSV)
 - `vendor/` holds Leaflet maps and Preact (stored locally)

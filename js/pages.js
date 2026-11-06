@@ -57,6 +57,7 @@
         <button class="primary talk-big" onClick=${() => G.Talk.open()}>🎙 Talk</button><button onClick=${() => UI.logVisit(null)}>+ Log activity</button><button class="primary" onClick=${() => go('#/trips/new')}>Plan a trip</button></div>
       <${G.Talk.QueueBanner} />
       <${GuideBanner} />
+      <${G.Todo.TodayCard} />
       ${(noPin || noStatus || future || backupAge === null || backupAge > 7) && html`<div class="card" style="margin-bottom:14px"><h3>Needs attention</h3><div class="stack">
         ${noPin > 0 && html`<div class="row"><span class="tag warn">${noPin}</span> accounts have no map pin, so they won't show on the map or be routed well.<span class="spacer"></span><button class="sm primary" onClick=${() => go('#/data?locate=1')}>Locate all</button></div>`}
         ${noStatus > 0 && html`<div class="row"><span class="tag bad">${noStatus}</span> accounts have no relationship status.<span class="spacer"></span><button class="sm" onClick=${() => go('#/accounts?status=__none')}>Review & bulk set</button></div>`}

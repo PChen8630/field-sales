@@ -13,7 +13,7 @@ const DATE = { type: "string", format: "date" };
 const SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["dealer", "visit", "projects", "contact_changes", "dealer_status", "questions", "readback"],
+  required: ["dealer", "visit", "projects", "todos", "contact_changes", "dealer_status", "questions", "readback"],
   properties: {
     dealer: {
       type: "object", additionalProperties: false,
@@ -55,6 +55,18 @@ const SCHEMA = {
         },
       },
     },
+    todos: {
+      type: "array",
+      items: {
+        type: "object", additionalProperties: false,
+        required: ["text", "dealer_id", "due_date"],
+        properties: {
+          text: STR,
+          dealer_id: nullable(STR),
+          due_date: nullable(DATE),
+        },
+      },
+    },
     contact_changes: {
       type: "array",
       items: {
@@ -89,10 +101,11 @@ Rules:
 - visit: log=true when the rep describes a meeting, call or conversation. type In-person unless they say phone/call/video/email. date = TODAY unless they say otherwise. summary = 1-3 short factual sentences in the language the rep spoke; only what was said, never invented. next_action = the next step, if any.
 - Dates: turn "in two weeks", "next Tuesday", "after the holidays" (= first Monday of January), "end of month" into YYYY-MM-DD from TODAY. follow_up_date only if the rep asks for a follow-up or reminder, or a next step clearly has a time.
 - projects: one entry per opportunity mentioned (new job, quote, tender). Reuse existing_project_id when it is clearly one of the PROJECTS listed. name = short description like "Saint-Jérôme school - 40 cameras". amount in CAD as a number (30K = 30000) or null. stage: Lead for a new opportunity, Quoted if a quote was sent, In Progress if ordered/installing, Won or Lost if stated. dealer_id = the dealer the project is with.
+- todos: one entry for each thing the rep promised or has to do (send a quote or pricing, call back, ship a sample, check stock, book a demo, ask the boss...). text = a short task starting with a verb, in the language the rep spoke, e.g. "Send pricing for the 4K bullet cameras". dealer_id = the dealer the task is for (usually the main dealer). due_date when a time is said ("tomorrow", "by Friday", "next week" = next Monday), else null. Put the main next step here too, even if it is also in visit.next_action. Empty if there is nothing to do.
 - contact_changes: new person met (new_contact), new phone/email/title for a known person (update_contact, with contact_id), someone left a company (left_company, from_dealer_id), someone joined another company (moved_company: from_dealer_id and to_dealer_id when it is in DEALERS, else to_company_name). Use contact_id from CONTACTS when it matches.
 - dealer_status: change only if clearly stated (e.g. "they closed" = Inactive, "booked a meeting" = Meeting Scheduled). Otherwise "unchanged".
 - questions: short questions for anything unclear (empty if all clear).
-- readback: one or two short sentences, in the rep's language, saying what will be saved, written to be read aloud to a driver. Example: "Visit at Alarme Mirabel logged. New project Saint-Jérôme school, 30 thousand dollars. Follow-up November 17."
+- readback: one or two short sentences, in the rep's language, saying what will be saved, written to be read aloud to a driver. Example: "Visit at Alarme Mirabel logged. New project Saint-Jérôme school, 30 thousand dollars. To do: send the quote by Friday."
 Do not add anything the rep did not say.`;
 
 function cors(origin: string | null) {

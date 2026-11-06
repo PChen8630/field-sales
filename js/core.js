@@ -31,7 +31,7 @@
   // ---------- Store ----------
   const KEY = 'fscc.v1';
   const blank = () => ({
-    customers: [], regions: [], visits: [], contacts: [], projects: [], trips: [],
+    customers: [], regions: [], visits: [], contacts: [], projects: [], trips: [], todos: [],
     settings: { intervalA: 30, intervalB: 60, intervalC: 90, ownerName: '', annualTarget: 0,
       homeLabel: '', homeLat: null, homeLng: null, lastBackup: null },
   });
@@ -74,7 +74,7 @@
       Store.commit((d) => {
         d[table] = d[table].filter((r) => r.id !== id);
         if (table === 'customers') {
-          ['visits', 'contacts', 'projects'].forEach((t) => { d[t] = d[t].filter((r) => r.customerId !== id); });
+          ['visits', 'contacts', 'projects', 'todos'].forEach((t) => { d[t] = d[t].filter((r) => r.customerId !== id); });
           d.trips.forEach((t) => { t.days = (t.days || []).map((day) => day.filter((s) => s.customerId !== id)); });
         }
         if (table === 'regions') d.customers.forEach((c) => { if (c.regionId === id) c.regionId = null; });

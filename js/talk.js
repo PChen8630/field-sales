@@ -125,6 +125,9 @@
         return { on: true, id: ex ? ex.id : null, exName: ex ? ex.name : '', customerId: has(p.dealer_id) ? p.dealer_id : '', name: p.name || '', product: p.products || '', amount: p.amount ?? null,
           stage: p.stage || 'Lead', closeDate: p.close_date || '', site: p.site || '', notes: p.notes || '', followUp: p.follow_up_date || '' };
       }),
+      // To-dos: from the AI's list; an older AI function only gives "next step", so use that.
+      todos: (Array.isArray(r.todos) ? r.todos : (v.next_action ? [{ text: v.next_action, dealer_id: null, due_date: v.follow_up_date }] : []))
+        .filter((x) => x && String(x.text || '').trim()).map((x) => ({ on: true, text: x.text, customerId: has(x.dealer_id) ? x.dealer_id : '', due: x.due_date || '' })),
       contacts: (r.contact_changes || []).map((c) => ({ on: true, kind: c.kind, contactId: c.contact_id || '', name: c.name || '', title: c.title || '', phone: c.phone || '', email: c.email || '',
         from: has(c.from_dealer_id) ? c.from_dealer_id : '', to: has(c.to_dealer_id) ? c.to_dealer_id : '', toName: c.to_company_name || '', note: c.note || '', createAccount: !has(c.to_dealer_id) && !!c.to_company_name })),
       status: r.dealer_status && r.dealer_status !== 'unchanged' ? r.dealer_status : '', statusOn: !!(r.dealer_status && r.dealer_status !== 'unchanged'),
@@ -158,6 +161,11 @@
       else rec.notes = p.notes;
       Store.upsert('projects', rec); count++;
       if (p.followUp) Store.commit((d) => { const c = d.customers.find((x) => x.id === cid); if (c && (!c.nextFollowUp || c.nextFollowUp < t || p.followUp < c.nextFollowUp)) { c.nextFollowUp = p.followUp; c.updatedAt = now; } });
+    });
+
+    // To-dos
+    (plan.todos || []).filter((x) => x.on && String(x.text).trim()).forEach((x) => {
+      G.Todo.add({ text: x.text, customerId: x.customerId || dealerId || null, due: x.due || null, source: 'voice' }); count++;
     });
 
     // Contacts
@@ -334,7 +342,7 @@
       body = html`<div class="talk"><div class="err">${err}</div><blockquote class="small">${text}</blockquote></div>`;
       footer = html`<span class="spacer"></span><button onClick=${close}>Close</button><button class="primary" onClick=${() => process(text)}>Try again</button>`;
     } else if (step === 'saved') {
-      body = html`<div class="talk"><div style="font-size:42px">✅</div><p><strong>Saved.</strong> ${saved.count} update${saved.count === 1 ? '' : 's'} made${plan.dealerId ? ' for ' + nameOf(plan.dealerId) : ''}.</p></div>`;
+      body = html`<div class="talk"><div style="font-size:42px">✅</div><p><strong>Saved.</strong> ${saved.count} update${saved.count === 1 ? '' : 's'} made${plan.dealerId ? ' for ' + nameOf(plan.dealerId).replace(/\.$/, '') : ''}.</p></div>`;
       footer = html`<button class="danger" onClick=${undo}>Undo</button><span class="spacer"></span>${plan.dealerId && html`<button onClick=${() => { onClose(); G.UIX.UI.openCustomer(plan.dealerId); }}>Open account</button>`}<button class="primary" onClick=${onClose}>Done</button>`;
     } else if (step === 'review' && plan) {
       const p = plan;
@@ -361,6 +369,13 @@
             <label class="f">Follow-up reminder<input type="date" ...${inp(pr.followUp, (v) => updArr('projects', i, { followUp: v }))} /></label>
             <label class="f">Site / end user<input ...${inp(pr.site, (v) => updArr('projects', i, { site: v }))} /></label>
             ${pr.notes && html`<label class="f full">Notes<input ...${inp(pr.notes, (v) => updArr('projects', i, { notes: v }))} /></label>`}</div>`}</div>`)}
+        ${(p.todos.length > 0 || p.dealerId) && html`<div class="card soft"><div class="row"><strong class="grow">✅ To do</strong><button class="sm" onClick=${() => upd({ todos: [...p.todos, { on: true, text: '', customerId: '', due: '' }] })}>+ Add</button></div>
+          ${p.todos.map((x, i) => html`<div class="talk-todo"><label class="chk"><input type="checkbox" checked=${x.on} onChange=${(e) => updArr('todos', i, { on: e.target.checked })} /></label>
+            <div class="grow form" style="gap:6px">
+              <input class="full" placeholder="What to do" ...${inp(x.text, (v) => updArr('todos', i, { text: v }))} />
+              <label class="f">For dealer${dealerSelect(x.customerId || p.dealerId, (v) => updArr('todos', i, { customerId: v }))}</label>
+              <label class="f">Due${html`<input type="date" ...${inp(x.due, (v) => updArr('todos', i, { due: v }))} />`}</label></div></div>`)}
+          ${!p.todos.length && html`<div class="small muted">No to-dos heard. Tap + Add to add one.</div>`}</div>`}
         ${p.contacts.map((k, i) => html`<div class="card soft"><label class="chk"><input type="checkbox" checked=${k.on} onChange=${(e) => updArr('contacts', i, { on: e.target.checked })} />
           <strong>${{ new_contact: 'New contact', update_contact: 'Update contact', left_company: 'Contact left', moved_company: 'Contact moved' }[k.kind]}: ${k.name}</strong></label>
           ${k.on && html`<div class="form">
@@ -371,7 +386,7 @@
             ${k.kind !== 'left_company' && html`<label class="f">Title<input ...${inp(k.title, (v) => updArr('contacts', i, { title: v }))} /></label>
               <label class="f">Phone<input ...${inp(k.phone, (v) => updArr('contacts', i, { phone: v }))} /></label>
               <label class="f">Email<input ...${inp(k.email, (v) => updArr('contacts', i, { email: v }))} /></label>`}</div>`}</div>`)}
-        ${!p.visit.on && !p.projects.length && !p.contacts.length && !p.status && html`<div class="muted">The AI didn't find anything to update. Edit the note below and try again, or log it by hand.</div>`}
+        ${!p.visit.on && !p.projects.length && !p.contacts.length && !p.todos.length && !p.status && html`<div class="muted">The AI didn't find anything to update. Edit the note below and try again, or log it by hand.</div>`}
         <details><summary class="small muted">What you said</summary><blockquote class="small">${p.transcript}</blockquote></details>
         ${err && html`<div class="err">${err}</div>`}</div>`;
       footer = html`<button onClick=${() => { stopYN.current(); G.Voice.stopSpeaking(); setStep('listen'); setPlan(null); alts.current = []; cancelled.current = false; }}>Redo</button><span class="spacer"></span><button onClick=${close}>Cancel</button><button class="primary" onClick=${() => save()}>Save</button>`;

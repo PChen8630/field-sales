@@ -130,6 +130,7 @@
     if (c.bizStatus && c.bizStatus !== 'Active') warn.push(`Business status: ${c.bizStatus}${c.bizStatusNote ? ' (' + c.bizStatusNote + ')' : ''}. Confirm before you go.`);
     if (c.residential) warn.push('Residential address: home-based business. Confirm the appointment before driving there, no drop-ins.');
     if (c.nextFollowUp && c.nextFollowUp < t) warn.push(`Follow-up was due ${FS.fmtDate(c.nextFollowUp)} (${FS.daysBetween(c.nextFollowUp, t)} days ago).`);
+    G.Todo.openOf(db, c.id).sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999')).forEach((x) => warn.push(`To do: ${x.text}${x.due ? ' (' + G.Todo.dueText(x.due, t).toLowerCase() + ')' : ''}.`));
     const lastAct = visits.find((v) => v.nextAction);
     if (lastAct) points.push(`Open action from ${FS.fmtDate(lastAct.date)}: ${lastAct.nextAction}.`);
     if (sc.since == null) points.push('No in-person visit on record. Treat this as a first meeting.');

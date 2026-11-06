@@ -146,6 +146,7 @@
     const c = db.customers.find((x) => x.id === cid);
     const [v, setV, bind] = useForm(visit ? { ...visit } : { date: FS.today(), type: 'In-person', outcome: '', nextAction: '', nextFollowUp: '' });
     const [setStatus, setSetStatus] = useState('');
+    const [addTodo, setAddTodo] = useState(!visit);
     const [q, setQ] = useState('');
     const quick = (d) => setV((o) => ({ ...o, nextFollowUp: FS.addDays(FS.today(), d) }));
     const [heard, setHeard] = useState('');
@@ -161,6 +162,7 @@
     const save = () => {
       if (!cid) return alert('Pick an account.');
       Store.logVisit({ ...v, customerId: cid, customerName: c ? c.name : '', setStatus: setStatus || undefined });
+      if (addTodo && String(v.nextAction || '').trim()) G.Todo.add({ text: v.nextAction, customerId: cid, due: v.nextFollowUp || null });
       UI.toast('Visit logged for ' + (c ? c.name : 'account')); onClose();
     };
     const matches = q.length > 1 ? db.customers.filter((x) => FS.norm(x.name).includes(FS.norm(q)) || FS.norm(x.city).includes(FS.norm(q))).slice(0, 8) : [];
@@ -174,7 +176,7 @@
         <label class="f">Type<select ...${bind('type')}>${FS.VISIT_TYPES.map((t) => html`<option>${t}</option>`)}</select></label>
         <div class="full"><div class="row" style="justify-content:space-between;margin-bottom:4px"><span class="small muted">What happened?</span><${G.Voice.MicButton} onText=${onSpeech} big=${true} /></div>
           <textarea style="width:100%" ...${bind('outcome')} placeholder="Met with… discussed… products shown… Tap Speak and say it, e.g. “Met Marc, showing the new 4K line, wants a quote. Next step is send pricing. Follow up in two weeks.”"></textarea></div>
-        <label class="f full">Next action<input ...${bind('nextAction')} placeholder="Send quote for 16-cam NVR, book demo…" /></label>
+        <label class="f full">Next action<input ...${bind('nextAction')} placeholder="Send quote for 16-cam NVR, book demo…" />${!visit && html`<span class="chk small"><input type="checkbox" checked=${addTodo} onChange=${(e) => setAddTodo(e.target.checked)} /> Also add it to ✅ To do (due on the follow-up date)</span>`}</label>
         <label class="f">Next follow-up<input type="date" ...${bind('nextFollowUp')} />${heard && html`<span class="small" style="color:var(--ok)">${heard}</span>`}</label>
         <div class="row" style="align-self:end"><button class="sm" onClick=${() => quick(7)}>+1 wk</button><button class="sm" onClick=${() => quick(14)}>+2 wk</button><button class="sm" onClick=${() => quick(30)}>+1 mo</button><button class="sm" onClick=${() => quick(90)}>+3 mo</button></div>
         <label class="f full">Update relationship status (optional)<select value=${setStatus} onChange=${(e) => setSetStatus(e.target.value)}><option value="">— Keep ${c && c.status ? c.status : 'as is'} —</option>${FS.STATUSES.map((s) => html`<option>${s}</option>`)}</select></label>
@@ -224,6 +226,7 @@
     const visits = db.visits.filter((v) => v.customerId === id).sort((a, b) => b.date.localeCompare(a.date));
     const contacts = db.contacts.filter((v) => v.customerId === id);
     const projects = db.projects.filter((v) => v.customerId === id);
+    const todos = G.Todo.openOf(db, id);
     const region = db.regions.find((r) => r.id === c.regionId);
     const openPipe = projects.filter((p) => !['Won', 'Lost'].includes(p.stage)).reduce((a, p) => a + (Number(p.amount) || 0), 0);
     const nav = FS.mapsLinks(null, [c])[0] || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([c.address, c.city, c.province].filter(Boolean).join(', ')));
@@ -263,7 +266,9 @@
               <button class=${tab === 'activity' ? 'on' : ''} onClick=${() => setTab('activity')}>Activity (${visits.length})</button>
               <button class=${tab === 'opps' ? 'on' : ''} onClick=${() => setTab('opps')}>Opportunities (${projects.length})</button>
               <button class=${tab === 'contacts' ? 'on' : ''} onClick=${() => setTab('contacts')}>Contacts (${contacts.length})</button>
+              <button class=${tab === 'todo' ? 'on' : ''} onClick=${() => setTab('todo')}>To do (${todos.length})</button>
             </div>
+            ${tab === 'todo' && html`<${G.Todo.DealerTodos} customerId=${c.id} />`}
             ${tab === 'activity' && (visits.length ? html`<div class="tl">${visits.map((v) => html`<div class="it">
                 <div class="row"><strong>${FS.fmtDate(v.date)}</strong><span class="tag">${v.type || 'In-person'}</span><span class="spacer"></span><button class="sm ghost" onClick=${() => UI.modal({ kind: 'visit', customerId: c.id, visit: v })}>Edit</button></div>
                 ${v.outcome && html`<div style="white-space:pre-wrap;margin-top:4px">${v.outcome}</div>`}

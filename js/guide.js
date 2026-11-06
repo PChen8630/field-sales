@@ -89,6 +89,13 @@
         'Pause or tap ■. The app reads back what it understood. Say “yes” (or tap Save). Nothing is saved before that.',
         'Made a mistake? Tap Undo on the “Saved” screen.',
         'No signal? The note waits on your phone. On Today, tap “Process” when you’re back online.'] },
+      { t: 'To do: add, review at night, see in the morning', d: 'Things you promised a dealer, linked to that dealer.', steps: [
+        'While driving: say it in 🎙 Talk, e.g. “…and I need to send them pricing by Friday.” It shows under ✅ To do on the review screen, already linked to the dealer.',
+        ['Or type it: open ✅ To do, write the task, pick the dealer and a day, tap + Add.', S('#/todo', '+ Add', 'Type the task above, pick a dealer and a day, then tap here.', { menu: 'To do' })],
+        'Logging a visit by hand? The “Next action” is added to To do too (untick the box if you don’t want it).',
+        ['Each morning, Today shows what’s overdue and due today. Tick the box when it’s done.', S('#/', null, 'Your to-dos for today. Tick when done.', { sel: '.todo-today' })],
+        ['Each evening (after 5 pm), tap 🌙 Evening review: tick what’s done, move the rest to tomorrow or Monday.', S('#/todo', '🌙 Evening review', 'Go through today’s to-dos here.', { menu: 'To do' })],
+        'A dealer’s page has a “To do” tab with everything for that dealer. Prep and Car mode remind you of open to-dos before you arrive.'] },
       { t: 'Log a visit or call by hand', d: 'When typing is easier.', steps: [
         ['Tap “+ Log activity”.', S('#/', '+ Log activity', 'Log a visit, call, video call or email.')],
         'Pick the dealer, the type (In-person, Phone…), and what happened.',
@@ -191,6 +198,7 @@
       <input type="search" class="guide-search" placeholder="Search: email, trip, voice, backup…" value=${q} onInput=${(e) => setQ(e.target.value)} />
       ${!q && html`<div class="guide-quick">
         <button onClick=${() => show(S('#/', '🎙 Talk', 'Tap here and just talk. Say “yes” to save.'))}><span>🎙</span>Update by voice</button>
+        <a class="btn" href="#/todo"><span>✅</span>To do</a>
         <a class="btn" href="#/car"><span>🚘</span>Car mode</a>
         <button onClick=${() => show(S('#/', '+ Log activity', 'Log a visit or call by hand.'))}><span>📝</span>Log a visit</button>
         <button onClick=${() => show(S('#/trips', '+ Plan a trip', 'Start a new trip here.', { menu: 'Trips' }))}><span>🗺</span>Plan a trip</button>

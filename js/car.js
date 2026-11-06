@@ -74,6 +74,7 @@
     const phone = c ? phoneOf(c, db) : '';
     const who = c ? contactOf(c, db) : '';
     const done = planned.length - left.length;
+    const todos = c ? G.Todo.openOf(db, c.id) : [];
 
     const doSkip = () => { if (!c) return; const s = [...skip, c.id]; setSkip(s); savePref({ skip: s, skipDay: t }); };
     const resetSkip = () => { setSkip([]); savePref({ skip: [], skipDay: t }); };
@@ -96,7 +97,8 @@
           <div class="car-label">${next.suggested ? 'Suggested drop-in nearby' : `Next stop${next.time ? ' · ' + next.time : ''}${planned.length ? ` · ${done + 1} of ${planned.length}` : ''}`}</div>
           <div class="car-name">${c.name}</div>
           <div class="car-sub">${[c.city, drive != null ? `~${drive} min` : null, who].filter(Boolean).join(' · ')}</div>
-          ${c.residential && html`<div class="car-warn">🏠 Appointment only — call first</div>`}`
+          ${c.residential && html`<div class="car-warn">🏠 Appointment only — call first</div>`}
+          ${todos.length > 0 && html`<div class="car-todo">✅ ${todos.length} to-do${todos.length > 1 ? 's' : ''}: ${todos[0].text}${todos.length > 1 ? ' …' : ''}</div>`}`
         : html`<div class="car-label">${planned.length ? 'All of today’s stops are done 🎉' : 'No trip planned today'}</div>
           <div class="car-sub">${pos ? 'No suggestion nearby.' : 'Allow location to get a drop-in suggestion.'}</div>`}
       </div>

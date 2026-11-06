@@ -12,7 +12,7 @@
     return { parts: path.split('/').filter(Boolean), params: Object.fromEntries(new URLSearchParams(qs || '')) };
   }
 
-  const NAV = [['', 'Today', '🏠'], ['car', 'Car mode', '🚘'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️'], ['guide', 'Guide', '❓']];
+  const NAV = [['', 'Today', '🏠'], ['todo', 'To do', '✅'], ['car', 'Car mode', '🚘'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️'], ['guide', 'Guide', '❓']];
 
   function App() {
     const [route, setRoute] = useState(parseHash());
@@ -31,6 +31,7 @@
     else if (p0 === 'trips') page = html`<${TripList} />`;
     else if (p0 === 'pipeline') page = html`<${Pipeline} />`;
     else if (p0 === 'activity') page = html`<${Activity} />`;
+    else if (p0 === 'todo') page = html`<${G.Todo.TodoPage} params=${route.params} key=${location.hash} />`;
     else if (p0 === 'guide') page = html`<${G.Guide.Guide} />`;
     else if (p0 === 'data') page = html`<${G.DataPage} params=${route.params} key=${location.hash} />`;
     else page = html`<div class="empty">Page not found. <a href="#/">Go home</a></div>`;
@@ -47,7 +48,7 @@
     // Car mode takes the whole screen: no menu or top bar.
     if (p0 === 'car') return html`<${G.Car.CarMode} params=${route.params} key=${location.hash} />${modals}`;
     return html`
-      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Field Sales</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/car" title="Car mode">🚘</a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
+      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Field Sales</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/todo" title="To do">✅</a><a class="btn sm" href="#/car" title="Car mode">🚘</a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
       <div class="shell">
         <nav class=${'side' + (menu ? ' open' : '')}>
           <div class="logo">Field Sales<br/>Command Center<span>Luminys · Canada East</span></div>

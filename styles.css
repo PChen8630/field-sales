@@ -261,3 +261,45 @@ pre.report { white-space: pre-wrap; background: #fafbfd; border: 1px solid var(-
 .guide-tip { position: fixed; z-index: 10001; background: #fff; color: var(--ink); border-radius: 12px; padding: 12px 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .3); display: flex; flex-direction: column; gap: 10px; font-size: 15px; }
 .guide-tip button { align-self: flex-end; }
 @media (max-width: 700px) { .guide-quick { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* To do */
+.bad-t { color: var(--bad); font-weight: 600; }
+.car-todo { margin-top: 8px; color: #86efac; font-weight: 600; font-size: 15px; }
+.todo-add { display: flex; flex-direction: column; gap: 10px; }
+.todo-add input:not([type=checkbox]) { min-width: 0; }
+.todo-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.todo-chips button.on { background: var(--brand); color: #fff; border-color: var(--brand); }
+.todo-chips input[type=date] { width: auto; padding: 5px 8px; }
+.todo-dealer { position: relative; }
+.todo-dealer input { width: 100%; }
+.todo-matches { display: flex; flex-direction: column; border: 1px solid var(--line); border-radius: 8px; margin-top: 4px; overflow: hidden; }
+.todo-matches button { border: 0; border-radius: 0; text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.todo-matches button:last-child { border-bottom: 0; }
+.todo-dealer-on { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--soft); border-radius: 8px; padding: 6px 6px 6px 10px; }
+.todo-group { margin-bottom: 12px; }
+.todo-gh { font-size: 14px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.todo-gh.late { color: var(--bad); }
+.todo-gh.today { color: var(--warn); }
+.todo-list { padding: 4px 12px; }
+.todo-today .todo-list { padding: 0; }
+.todo-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.todo-row:last-child { border-bottom: 0; }
+.todo-chk { width: 22px; height: 22px; margin-top: 1px; flex: none; cursor: pointer; }
+.todo-text { font-weight: 600; cursor: text; overflow-wrap: anywhere; }
+.todo-row.done .todo-text { text-decoration: line-through; color: var(--muted); font-weight: 400; }
+.todo-meta { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: center; margin-top: 3px; }
+.todo-meta a { color: inherit; }
+.todo-acts { display: flex; gap: 4px; flex: none; }
+.todo-acts.big { flex-wrap: wrap; justify-content: flex-end; max-width: 210px; }
+.todo-today { margin-bottom: 14px; border-left: 4px solid var(--ok, #16a34a); }
+.todo-today.evening { border-left-color: #6366f1; }
+.todo-review-head { margin-bottom: 12px; border-left: 4px solid #6366f1; }
+.talk-todo { display: flex; gap: 8px; align-items: flex-start; padding: 8px 0; border-top: 1px solid var(--line); margin-top: 8px; }
+@media (max-width: 640px) {
+  .todo-acts.big { max-width: 120px; }
+  .todo-acts button { padding: 6px 8px; }
+}
+@media (max-width: 430px) {
+  .topbar > strong { font-size: 0; } /* keep the space, drop the title so every button fits */
+  .topbar { gap: 5px; }
+}
