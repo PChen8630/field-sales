@@ -1,6 +1,6 @@
 {
   "id": "./talk",
-  "name": "Talk - Field Sales",
+  "name": "Talk - Command Center",
   "short_name": "Talk",
   "start_url": "./index.html?from=talk#/car?talk=1",
   "scope": "./",

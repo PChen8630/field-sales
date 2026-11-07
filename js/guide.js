@@ -67,7 +67,7 @@
         'On your phone, open pchen8630.github.io/field-sales and sign in.',
         'Android (Chrome): tap the ⋮ menu → “Add to Home screen” (or “Install app”).',
         'iPhone (Safari): tap Share (square with an arrow) → “Add to Home Screen”.',
-        'A blue 📍 “Field Sales” icon appears. Open the app from it from now on.'] },
+        'A blue 📍 “Command Center” icon appears. Open the app from it from now on.'] },
       { t: 'Add the red 🎙 Talk icon', d: 'Opens Car mode already listening.', steps: [
         ['Open the Talk icon page and follow the steps there.', S(null, null, null, { href: 'talk.html' })],
         'On Android you can also long-press the blue app icon → “Talk”.',

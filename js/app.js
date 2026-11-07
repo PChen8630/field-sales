@@ -48,7 +48,7 @@
     // Car mode takes the whole screen: no menu or top bar.
     if (p0 === 'car') return html`<${G.Car.CarMode} params=${route.params} key=${location.hash} />${modals}`;
     return html`
-      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Field Sales</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/todo" title="To do">✅</a><a class="btn sm" href="#/car" title="Car mode">🚘</a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
+      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Command Center</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/todo" title="To do">✅</a><a class="btn sm" href="#/car" title="Car mode">🚘</a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
       <div class="shell">
         <nav class=${'side' + (menu ? ' open' : '')}>
           <div class="logo">Field Sales<br/>Command Center<span>Luminys · Canada East</span></div>

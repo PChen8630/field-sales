@@ -1,7 +1,7 @@
 {
   "id": "./",
   "name": "Field Sales Command Center",
-  "short_name": "Field Sales",
+  "short_name": "Command Center",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
