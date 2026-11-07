@@ -250,8 +250,10 @@
             <div class="card kpi"><div class="label">Last visit</div><div class="value" style="font-size:18px">${c.lastVisit ? sc.since + 'd ago' : 'Never'}</div><div class="sub">Target every ${sc.target}d</div></div>
             <div class="card kpi"><div class="label">Open pipeline</div><div class="value" style="font-size:18px">${FS.money(openPipe)}</div><div class="sub">${projects.length} opportunit${projects.length === 1 ? 'y' : 'ies'}</div></div>
           </div>
-          ${(c.pos || c.dealerId || c.distributor) && html`<div class="card small"><div class="row" style="gap:18px">
+          ${(c.pos || c.dealerId || c.distributor || c.crmId) && html`<div class="card small"><div class="row" style="gap:18px">
             ${Object.keys(c.pos || {}).sort().reverse().map((y) => html`<div><div class="muted">POS ${y}</div><strong class="num" style="font-size:16px">${FS.money(c.pos[y])}</strong></div>`)}
+            ${c.crmPurchase != null && html`<div><div class="muted">CRM annual purchase</div><strong class="num" style="font-size:16px">${FS.money(c.crmPurchase)}</strong></div>`}
+            ${c.crmCode && html`<div><div class="muted">CRM account code</div><strong>${c.crmCode}</strong></div>`}
             ${c.distributor && html`<div><div class="muted">Distributor</div><strong>${c.distributor}</strong></div>`}
             ${c.dealerId && html`<div><div class="muted">Dealer #</div><strong>${c.dealerId}</strong>${c.dealerSince ? html`<div class="muted">since ${FS.fmtDate(c.dealerSince)}</div>` : ''}</div>`}
           </div></div>`}

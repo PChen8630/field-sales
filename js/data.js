@@ -241,6 +241,7 @@
       ${!db.customers.length && html`<div class="okbox" style="margin-bottom:14px">No accounts yet. Import your CSV, or <a style="cursor:pointer;text-decoration:underline" onClick=${loadSample}>load sample data</a> to try the app first (erase it later in Backup → Danger zone).</div>`}
       <div class="grid g2">
         <${G.Sync.CloudCard} />
+        <${G.Crm.CrmCard} />
         <${GeoCard} autoStart=${params.locate === '1'} />
         <${BackupCard} />
         <${SettingsCard} />

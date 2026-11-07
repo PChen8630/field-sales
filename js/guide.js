@@ -167,6 +167,12 @@
       { t: 'Import dealers from a spreadsheet', d: 'CSV from your CRM or Excel.', steps: [
         ['Data & settings → “⬆ Import CSV”.', S('#/data', '⬆ Import CSV', 'Import a CSV. Columns are matched for you and duplicates are flagged.', { menu: 'Data & settings' })],
         'After importing, tap “Locate all” so every dealer gets a map pin.'] },
+      { t: 'Compare with Dynamics 365', d: 'See every difference with the CRM and choose which side is right.', steps: [
+        'In Dynamics: accounts view → Export to Excel → Static worksheet. Keep the hidden columns.',
+        ['Data & settings → “Compare with CRM export…” and pick the file.', S('#/data', 'Compare with CRM export', 'Pick your Dynamics export. Nothing changes until you tap Apply.', { menu: 'Data & settings' })],
+        'Go through the tabs: Conflicts, Name-only matches, Only in CRM (Active ones are ticked), Only in app, Blanks to fill.',
+        '“⬇ List of CRM updates” gives you a spreadsheet of what to fix in the CRM.',
+        'Tap Apply. Changed your mind? “Undo last CRM import” on the same card.'] },
       { t: 'Undo a mistake', d: 'Most things can be reversed.', steps: [
         'Right after a voice update: Undo on the “Saved” screen.',
         'Bigger problem: Data & settings → Cloud sync → “Daily cloud copies…” → Restore the copy from before it happened.'] },

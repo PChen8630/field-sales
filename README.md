@@ -68,6 +68,13 @@ One-time setup:
 
 Needs cloud sign-in. Voice notes and your dealer list are sent to Anthropic to be understood.
 
+## Compare with Dynamics 365
+Data & settings → **Compare with CRM export…**. Pick the Excel export from Dynamics (accounts view → Export to Excel → Static worksheet, hidden columns kept). The file is read in the browser and never uploaded.
+- Dealers are matched on the hidden CRM record ID first, then on name, email, phone and postal code. Each matched dealer stores its CRM ID, account code and annual actual purchase (kept separate from POS).
+- Tabs: **Conflicts** (choose App or CRM per field), **Name-only matches** (shows what each side knows, then Same / Different / Decide later), **Only in CRM** (Active ones pre-ticked), **Only in app** (never deleted), **Blanks to fill**.
+- **⬇ List of CRM updates**: a CSV of what to change in the CRM by hand.
+- Nothing changes until **Apply**. **Undo last CRM import** puts everything back (the undo copy is kept on that device only).
+
 ## Move your data over from Base44
 1. Use **`import-ready.csv`** in this folder. It's your Base44 export (316 accounts), cleaned: province codes, tidy city names, POS 2025/2026, distributor and dealer # as their own columns, and relationship status filled from POS sales (bought in 2026 = Active Customer, bought in 2025 only = Follow-up Needed, no sales = Prospect).
 2. Go to **Data & settings → Import CSV** and pick that file. Columns are matched automatically. "Additional contacts" in the notes become real contact records (132 of them).
