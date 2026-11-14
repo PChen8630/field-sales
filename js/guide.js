@@ -101,7 +101,7 @@
         'Pick the dealer, the type (In-person, Phone…), and what happened.',
         'Set the next follow-up with the +1 wk / +2 wk / +1 mo buttons, then Save.'] },
       { t: 'Drive with Car mode', d: 'Three huge buttons: Talk, Navigate, Call.', steps: [
-        ['Open Car mode with 🚘 (top bar on the phone, or the menu).', S('#/', null, 'Car mode: big buttons for the road.', { sel: 'a[href="#/car"]', menu: 'Car mode' })],
+        ['Open Car mode with 🚘 on the Today page (or ☰ More).', S('#/', null, 'Car mode: big buttons for the road.', { sel: 'a[href="#/car"]', menu: 'Car mode' })],
         'It shows your next stop from today’s trip, with the time. No trip? It suggests the best drop-in nearby.',
         '🧭 Navigate opens Google Maps or Waze (choose at the bottom). 📞 Call rings the contact.',
         '⏭ Skip moves to the next stop. 🔊 Read prep reads you the briefing before you go in.',

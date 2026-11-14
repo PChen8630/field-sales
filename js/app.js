@@ -12,7 +12,9 @@
     return { parts: path.split('/').filter(Boolean), params: Object.fromEntries(new URLSearchParams(qs || '')) };
   }
 
-  const NAV = [['', 'Today', '🏠'], ['todo', 'To do', '✅'], ['car', 'Car mode', '🚘'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['email', 'Email', '✉️'], ['trips', 'Trips', '🚗'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️'], ['guide', 'Guide', '❓']];
+  const MAIN = [['', 'Today', '🏠'], ['todo', 'To do', '✅'], ['accounts', 'Accounts', '🏢'], ['near', 'Near me', '📍'], ['trips', 'Trips', '🚗']];
+  const MORE = [['car', 'Car mode', '🚘'], ['email', 'Email', '✉️'], ['pipeline', 'Pipeline', '💰'], ['activity', 'Activity', '📝'], ['data', 'Data & settings', '⚙️'], ['guide', 'Guide', '❓']];
+  const TABS = [['', 'Today', '🏠'], ['todo', 'To do', '✅'], ['accounts', 'Accounts', '🏢'], ['trips', 'Trips', '🚗']];
 
   function App() {
     const [route, setRoute] = useState(parseHash());
@@ -48,15 +50,19 @@
     // Car mode takes the whole screen: no menu or top bar.
     if (p0 === 'car') return html`<${G.Car.CarMode} params=${route.params} key=${location.hash} />${modals}`;
     return html`
-      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)}>☰</button><strong style="flex:1">Command Center</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><a class="btn sm" href="#/todo" title="To do">✅</a><a class="btn sm" href="#/car" title="Car mode">🚘</a><a class="btn sm" href="#/near" title="Near me">📍</a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
+      <div class="topbar"><button class="sm" onClick=${() => setMenu(!menu)} aria-label="Menu">☰</button><strong style="flex:1">Command Center</strong><a href="#/data" style="text-decoration:none"><${G.Sync.StatusIcon} /></a><button class="sm primary talk-top" onClick=${() => G.Talk.open()} title="Talk: update by voice">🎙</button><button class="sm" onClick=${() => UI.logVisit(null)}>+ Log</button></div>
+      ${menu && html`<div class="scrim" onClick=${() => setMenu(false)}></div>`}
       <div class="shell">
         <nav class=${'side' + (menu ? ' open' : '')}>
           <div class="logo">Field Sales<br/>Command Center<span>Luminys · Canada East</span></div>
-          ${NAV.map(([k, label, icon]) => html`<a href=${'#/' + k} class=${(p0 || '') === k ? 'on' : ''}><span>${icon}</span>${label}</a>`)}
+          ${MAIN.map(([k, label, icon]) => html`<a href=${'#/' + k} class=${(p0 || '') === k ? 'on' : ''}><span>${icon}</span>${label}</a>`)}
+          <div class="side-sep">More</div>
+          ${MORE.map(([k, label, icon]) => html`<a href=${'#/' + k} class=${'minor' + ((p0 || '') === k ? ' on' : '')}><span>${icon}</span>${label}</a>`)}
           <div class="foot"><${G.Sync.StatusLine} />${!G.Sync.signedIn && html`<br/>Back up weekly from Data & settings.`}</div>
         </nav>
         <main class="main">${page}</main>
       </div>
+      <nav class="tabbar">${TABS.map(([k, label, icon]) => html`<a href=${'#/' + k} class=${(p0 || '') === k ? 'on' : ''}><span>${icon}</span>${label}</a>`)}<button class=${MORE.some(([k]) => k === p0) || p0 === 'near' ? 'on' : ''} onClick=${() => setMenu(!menu)}><span>☰</span>More</button></nav>
       ${modals}`;
   }
 

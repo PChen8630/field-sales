@@ -54,25 +54,22 @@
 
     return html`
       <div class="head"><div class="grow"><h1>Good ${new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 18 ? 'afternoon' : 'evening'}${s.ownerName ? ', ' + s.ownerName : ''}</h1><div class="muted">${FS.fmtDay(t)} · ${active.length} active accounts</div></div>
-        <button class="primary talk-big" onClick=${() => G.Talk.open()}>🎙 Talk</button><button onClick=${() => UI.logVisit(null)}>+ Log activity</button><button class="primary" onClick=${() => go('#/trips/new')}>Plan a trip</button></div>
+      </div>
+      <div class="quick"><button class="primary talk-big" onClick=${() => G.Talk.open()}><span>🎙</span>Talk</button><button onClick=${() => UI.logVisit(null)}><span>＋</span>Log</button><a class="btn" href="#/near"><span>📍</span>Near me</a><a class="btn" href="#/car"><span>🚘</span>Car mode</a></div>
       <${G.Talk.QueueBanner} />
       <${GuideBanner} />
       <${G.Todo.TodayCard} />
-      ${(noPin || noStatus || future || backupAge === null || backupAge > 7) && html`<div class="card" style="margin-bottom:14px"><h3>Needs attention</h3><div class="stack">
+      ${(noPin || noStatus || future || backupAge === null || backupAge > 7) && html`<details class="fold"><summary>⚠ ${(() => { const n = [noPin, noStatus, noRegion, future].filter((x) => x > 0).length + (backupAge === null || backupAge > 7 ? 1 : 0); return n + (n === 1 ? ' thing' : ' things'); })()} to tidy up</summary><div class="foldbody"><div class="stack">
         ${noPin > 0 && html`<div class="row"><span class="tag warn">${noPin}</span> accounts have no map pin, so they won't show on the map or be routed well.<span class="spacer"></span><button class="sm primary" onClick=${() => go('#/data?locate=1')}>Locate all</button></div>`}
         ${noStatus > 0 && html`<div class="row"><span class="tag bad">${noStatus}</span> accounts have no relationship status.<span class="spacer"></span><button class="sm" onClick=${() => go('#/accounts?status=__none')}>Review & bulk set</button></div>`}
         ${noRegion > 0 && html`<div class="row"><span class="tag">${noRegion}</span> accounts have no region.<span class="spacer"></span><button class="sm" onClick=${() => go('#/accounts?region=__none')}>Review</button></div>`}
         ${future > 0 && html`<div class="row"><span class="tag bad">${future}</span> accounts have a last-visit date in the future (data error).<span class="spacer"></span><button class="sm" onClick=${() => go('#/accounts?due=future')}>Fix</button></div>`}
         ${(backupAge === null || backupAge > 7) && html`<div class="row"><span class="tag warn">Backup</span> ${backupAge === null ? 'You have never backed up.' : `Last backup ${backupAge} days ago.`} Data lives only in this browser.<span class="spacer"></span><button class="sm" onClick=${() => go('#/data')}>Back up now</button></div>`}
-      </div></div>`}
-      <div class="grid kpis" style="margin-bottom:14px">
+      </div></div></details>`}
+      <div class="grid kpis three" style="margin-bottom:14px">
         <div class="card kpi click" onClick=${() => go('#/accounts?due=overdue')}><div class="label">Visits overdue</div><div class="value">${overdueVisits.length}</div><div class="sub">${overdueA} are A accounts</div></div>
         <div class="card kpi click" onClick=${() => go('#/accounts?due=follow')}><div class="label">Follow-ups ≤ 7 days</div><div class="value">${follow.length}</div><div class="sub">${followOverdue} overdue</div></div>
         <div class="card kpi click" onClick=${() => go('#/activity')}><div class="label">In-person visits · month</div><div class="value">${visitsMonth}</div><div class="sub">${db.visits.filter((v) => v.date >= monthStart).length} total activities</div></div>
-        ${posThis + posLast > 0 && html`<div class="card kpi click" onClick=${() => go('#/accounts?sort=pos')}><div class="label">POS sales ${yr}</div><div class="value">${FS.money(posThis)}</div><div class="sub">${buyers} buying dealers · ${yr - 1}: ${FS.money(posLast)}</div></div>`}
-        <div class="card kpi click" onClick=${() => go('#/pipeline')}><div class="label">Open pipeline</div><div class="value">${FS.money(openAmt)}</div><div class="sub">Weighted ${FS.money(weighted)}</div></div>
-        <div class="card kpi click" onClick=${() => go('#/pipeline')}><div class="label">Won this year</div><div class="value">${FS.money(wonYTD)}</div>
-          ${s.annualTarget ? html`<div class="meter" style="margin-top:6px"><div style=${'width:' + Math.min(100, wonYTD / s.annualTarget * 100) + '%'}></div></div><div class="sub">${Math.round(wonYTD / s.annualTarget * 100)}% of ${FS.money(s.annualTarget)}</div>` : html`<div class="sub"><a href="#/data">Set annual target</a></div>`}</div>
       </div>
       <div class="grid g2">
         <div class="card flush"><div style="padding:14px 16px 6px" class="row between"><h2 style="margin:0">Follow-ups due</h2><span class="muted small">overdue + next 7 days</span></div>
@@ -87,12 +84,20 @@
             <a style="flex:1;cursor:pointer;min-width:0" onClick=${() => UI.openCustomer(r.c.id)}>${r.c.name}<div class="small muted">${r.c.city || ''} · ${r.reasons.slice(1).join(' · ') || 'on schedule'}</div></a>
             <${PrioTag} p=${r.c.priority} /></div>`)}
         </div>
-        <div class="card"><h2>Activity · last 12 weeks</h2>
-          <div class="bars">${perWeek.map((n, i) => html`<div class="b" title=${'Week of ' + FS.fmtDate(weeks[i]) + ': ' + n}><span class="bv">${n || ''}</span><div class="bar" style=${'height:' + (n / maxW * 85) + '%'}></div><span class="bl">${FS.parseISO(weeks[i]).toLocaleDateString('en-CA', { month: 'numeric', day: 'numeric' })}</span></div>`)}</div></div>
-        <div class="card"><div class="row between"><h2 style="margin:0">Upcoming trips</h2><a class="small" href="#/trips">All trips →</a></div>
+        <div class="card"><div class="row between"><h2 style="margin:0">Upcoming trips</h2><a class="small" href="#/trips/new">+ Plan a trip</a></div>
           ${upcoming.length ? upcoming.map((tr) => html`<div class="list-item" style="cursor:pointer;padding-left:0" onClick=${() => go('#/trips/' + tr.id)}><div style="flex:1"><strong>${tr.name}</strong><div class="small muted">${FS.fmtDate(tr.startDate)} → ${FS.fmtDate(tr.endDate)} · ${(tr.days || []).flat().length} stops</div></div><span class=${'tag ' + (tr.status === 'confirmed' ? 'ok' : '')}>${tr.status || 'draft'}</span></div>`)
             : html`<div class="empty">No upcoming trips.<br/><button style="margin-top:8px" onClick=${() => go('#/trips/new')}>Plan one</button></div>`}</div>
-      </div>`;
+      </div>
+      <details class="fold" style="margin-top:14px"><summary>📊 Sales, pipeline & activity</summary><div class="foldbody">
+        <div class="grid kpis" style="margin-bottom:14px">
+        ${posThis + posLast > 0 && html`<div class="card kpi click" onClick=${() => go('#/accounts?sort=pos')}><div class="label">POS sales ${yr}</div><div class="value">${FS.money(posThis)}</div><div class="sub">${buyers} buying dealers · ${yr - 1}: ${FS.money(posLast)}</div></div>`}
+        <div class="card kpi click" onClick=${() => go('#/pipeline')}><div class="label">Open pipeline</div><div class="value">${FS.money(openAmt)}</div><div class="sub">Weighted ${FS.money(weighted)}</div></div>
+        <div class="card kpi click" onClick=${() => go('#/pipeline')}><div class="label">Won this year</div><div class="value">${FS.money(wonYTD)}</div>
+          ${s.annualTarget ? html`<div class="meter" style="margin-top:6px"><div style=${'width:' + Math.min(100, wonYTD / s.annualTarget * 100) + '%'}></div></div><div class="sub">${Math.round(wonYTD / s.annualTarget * 100)}% of ${FS.money(s.annualTarget)}</div>` : html`<div class="sub"><a href="#/data">Set annual target</a></div>`}</div>
+        </div>
+        <div class="card" style="box-shadow:none"><h2>Activity · last 12 weeks</h2>
+          <div class="bars">${perWeek.map((n, i) => html`<div class="b" title=${'Week of ' + FS.fmtDate(weeks[i]) + ': ' + n}><span class="bv">${n || ''}</span><div class="bar" style=${'height:' + (n / maxW * 85) + '%'}></div><span class="bl">${FS.parseISO(weeks[i]).toLocaleDateString('en-CA', { month: 'numeric', day: 'numeric' })}</span></div>`)}</div></div>
+      </div></details>`;
   }
 
   // ---------------- Accounts ----------------
